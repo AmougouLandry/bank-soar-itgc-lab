@@ -9,7 +9,7 @@ A containerized enterprise security engineering and IT General Controls (ITGC) h
 
 ## Build Progress
 - [x] **Phase 1:** Segmented Docker Networks, Samba4 Active Directory DC, and MariaDB HR/Governance Registry.
-- [ ] **Phase 2:** Python + SQL ITGC User Access Reconciliation Engine (Orphan Account & Privilege Creep Detection).
+- [x] **Phase 2:** Python + SQL ITGC User Access Reconciliation Engine (Orphan Account & Privilege Creep Detection).
 - [ ] **Phase 3:** Security Telemetry & Alert Ingestion Pipeline.
 - [ ] **Phase 4:** Shuffle SOAR Automated Incident Response & Threat Intel Enrichment.
 - [ ] **Phase 5:** Executive Power BI Compliance & SOC Dashboard.

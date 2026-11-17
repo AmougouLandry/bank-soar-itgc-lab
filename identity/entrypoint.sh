@@ -50,4 +50,4 @@ if [ ! -f /var/lib/samba/private/sam.ldb ]; then
     echo "[+] Active Directory Provisioning Complete."
 fi
 
-exec samba -i --debug-stderr
+exec samba -i --debug-stdout

@@ -54,3 +54,23 @@ services:
       bank_secops_net:
         ipv4_address: 172.25.20.20
     restart: unless-stopped
+
+  itgc-auditor:
+    build: ./itgc-audit
+    container_name: bank_itgc_auditor
+    depends_on:
+      - ad-dc
+      - mariadb-governance
+    environment:
+      AD_HOST: 172.25.20.10
+      DOMAIN_REALM: ${DOMAIN_REALM}
+      AD_ADMIN_PASS: ${AD_ADMIN_PASS}
+      DB_HOST: 172.25.20.20
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    volumes:
+      - ./powerbi-export:/app/export
+    networks:
+      bank_secops_net:
+        ipv4_address: 172.25.20.30

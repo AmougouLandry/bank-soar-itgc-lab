@@ -4,6 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     samba \
+    samba-ad-provision \
+    samba-dsdb-modules \
+    samba-vfs-modules \
     winbind \
     krb5-user \
     smbclient \
