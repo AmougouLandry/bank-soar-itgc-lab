@@ -1,0 +1,7 @@
+.env
+*.log
+__pycache__/
+*.pyc
+powerbi-export/*.csv
+powerbi-export/*.json
+!powerbi-export/.gitkeep

@@ -1,0 +1,56 @@
+networks:
+  bank_corp_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.10.0/24
+  bank_secops_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.20.0/24
+
+volumes:
+  samba_data:
+  samba_etc:
+  mariadb_data:
+
+services:
+  ad-dc:
+    build: ./identity
+    container_name: bank_ad_dc
+    hostname: dc01
+    domainname: corp.banklab.local
+    privileged: true
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      DOMAIN_REALM: ${DOMAIN_REALM}
+      DOMAIN_NETBIOS: ${DOMAIN_NETBIOS}
+      AD_ADMIN_PASS: ${AD_ADMIN_PASS}
+    volumes:
+      - samba_data:/var/lib/samba
+      - samba_etc:/etc/samba
+    networks:
+      bank_corp_net:
+        ipv4_address: 172.25.10.10
+      bank_secops_net:
+        ipv4_address: 172.25.20.10
+    restart: unless-stopped
+
+  mariadb-governance:
+    image: mariadb:lts
+    container_name: bank_mariadb_hr
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      bank_corp_net:
+        ipv4_address: 172.25.10.20
+      bank_secops_net:
+        ipv4_address: 172.25.20.20
+    restart: unless-stopped
