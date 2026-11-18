@@ -11,18 +11,18 @@ Built to bridge **Identity & Access Management (Active Directory)**, **Relationa
 ```mermaid
 flowchart LR
     subgraph CorpNet["VLAN 10: Corporate & Core Banking (172.25.10.0/24)"]
-        AD["Samba4 Active Directory DC\n(corp.banklab.local | LDAPS:636)"]
-        DB["MariaDB LTS Governance\n(HR Registry + Audit & SOC Tables)"]
+        AD["Samba4 Active Directory DC<br/>(corp.banklab.local | LDAPS:636)"]
+        DB["MariaDB LTS Governance<br/>(HR Registry + Audit & SOC Tables)"]
     end
 
     subgraph SecOpsNet["VLAN 20: SecOps & Audit Automation (172.25.20.0/24)"]
-        AUDIT["ITGC Reconciliation Engine\n(Python + ldap3 + PyMySQL)"]
-        SIM["Adversary Simulator\n(Brute Force / Orphan Login / PrivEsc)"]
-        SIEM["SIEM Telemetry Detector\n(MITRE ATT&CK Correlation)"]
-        SOAR["FastAPI SOAR Orchestrator\n(Threat Intel + LDAPS Containment)"]
+        AUDIT["ITGC Reconciliation Engine<br/>(Python + ldap3 + PyMySQL)"]
+        SIM["Adversary Simulator<br/>(Brute Force / Orphan Login / PrivEsc)"]
+        SIEM["SIEM Telemetry Detector<br/>(MITRE ATT&CK Correlation)"]
+        SOAR["FastAPI SOAR Orchestrator<br/>(Threat Intel + LDAPS Containment)"]
     end
 
-    PBI["Power BI Executive Dashboard\n(CSV / SQL Compliance & SOC KPIs)"]
+    PBI["Power BI Executive Dashboard<br/>(CSV / SQL Compliance & SOC KPIs)"]
 
     AD <-->|"LDAPS User & Group Query"| AUDIT
     DB <-->|"HR Employment Status"| AUDIT
@@ -35,8 +35,8 @@ flowchart LR
     SOAR -->|"Block Malicious IP & Log Audit Trail"| DB
     SOAR -->|"Enriched Incident Metrics"| PBI
 Executive Power BI Reporting
-See docs/POWERBI_DASHBOARD_GUIDE.md for DAX measures and dataset schema details.
 
+See docs/POWERBI_DASHBOARD_GUIDE.md for DAX measures and dataset schema details.
 Key Engineering & Audit Capabilities
 1. Automated ITGC User Access Reconciliation (itgc-audit/)
 Queries Samba4 Active Directory over encrypted LDAPS (TCP/636) and reconciles userAccountControl and Domain Admins memberships against the MariaDB HR Registry (hr_employees).
