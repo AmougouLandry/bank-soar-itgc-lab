@@ -1,0 +1,37 @@
+{
+  "name": "Bank_SOC_Automated_Triage_And_LDAPS_Containment",
+  "description": "Ingests MITRE ATT&CK alerts from SIEM detector, enriches source IPs via AbuseIPDB/VirusTotal, and triggers LDAPS account disablement or firewall IP blocking.",
+  "start": "webhook_siem_ingest",
+  "triggers": [
+    {
+      "id": "webhook_siem_ingest",
+      "name": "SIEM_Alert_Webhook",
+      "type": "WEBHOOK",
+      "parameters": {
+        "url": "http://soar-engine:8000/api/v1/soar/ingest",
+        "method": "POST"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "id": "enrich_abuseipdb",
+      "name": "Enrich_Source_IP_AbuseIPDB",
+      "app_name": "AbuseIPDB",
+      "action": "check_ip",
+      "parameters": {
+        "ipAddress": "$exec.source_ip",
+        "maxAgeInDays": "90"
+      }
+    },
+    {
+      "id": "evaluate_mitre_playbook",
+      "name": "Route_By_MITRE_Technique",
+      "conditions": [
+        { "rule_id": "SOC-001", "mitre": "T1110.001", "action": "contain_block_perimeter_ip" },
+        { "rule_id": "SOC-002", "mitre": "T1078.002", "action": "contain_disable_ad_account" },
+        { "rule_id": "SOC-003", "mitre": "T1098", "action": "contain_revoke_domain_admin" }
+      ]
+    }
+  ]
+}

@@ -1,2 +1,3 @@
 185.220.101.45 # Blocked at 2026-11-18 00:05:24 UTC | Alert #4: External Brute-Force / Password Spraying Against Banking AD
 41.202.219.74 # Blocked at 2026-11-18 00:05:26 UTC | Terminated user login: jean.mbarga
+41.202.219.74 # Blocked at 2026-11-18 00:18:42 UTC | Terminated user login: jean.mbarga
