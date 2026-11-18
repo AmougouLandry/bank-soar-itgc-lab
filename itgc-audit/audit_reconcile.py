@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from ldap3 import Server, Connection, Tls, ALL, SUBTREE
 import pymysql
 
-# Configuration from environment
 AD_HOST = os.getenv("AD_HOST", "ad-dc")
 DOMAIN_REALM = os.getenv("DOMAIN_REALM", "CORP.BANKLAB.LOCAL")
 BASE_DN = "DC=corp,DC=banklab,DC=local"
@@ -21,6 +20,19 @@ DB_PASS = os.getenv("DB_PASS")
 
 EXPORT_DIR = "/app/export"
 SYSTEM_ACCOUNTS = {"Administrator", "Guest", "krbtgt"}
+
+FINDINGS_FIELDS = [
+    "audit_run_timestamp",
+    "control_id",
+    "severity",
+    "sam_account_name",
+    "full_name",
+    "department",
+    "hr_status",
+    "ad_enabled",
+    "is_domain_admin",
+    "finding_description",
+]
 
 
 def connect_ldap_with_retry(retries=5, delay=2):
@@ -173,13 +185,32 @@ def run_reconciliation():
 
     db_conn.close()
 
-    # Export Power BI datasets (CSV & JSON)
+    # Export Power BI datasets (always write headers even when 0 violations exist)
     os.makedirs(EXPORT_DIR, exist_ok=True)
-    with open(os.path.join(EXPORT_DIR, "itgc_findings_latest.csv"), "w", newline="", encoding="utf-8") as f_csv:
+    latest_csv = os.path.join(EXPORT_DIR, "itgc_findings_latest.csv")
+    with open(latest_csv, "w", newline="", encoding="utf-8") as f_csv:
+        writer = csv.DictWriter(f_csv, fieldnames=FINDINGS_FIELDS)
+        writer.writeheader()
         if findings:
-            writer = csv.DictWriter(f_csv, fieldnames=findings[0].keys())
-            writer.writeheader()
             writer.writerows(findings)
+
+    # Append summary run metrics to historical trend CSV for Power BI time-series
+    history_csv = os.path.join(EXPORT_DIR, "itgc_audit_history.csv")
+    file_exists = os.path.exists(history_csv)
+    with open(history_csv, "a", newline="", encoding="utf-8") as h_csv:
+        h_fields = ["audit_timestamp", "total_accounts", "violations_found", "compliance_rate_pct"]
+        h_writer = csv.DictWriter(h_csv, fieldnames=h_fields)
+        if not file_exists:
+            h_writer.writeheader()
+        total = len(ad_users)
+        viol = len(findings)
+        rate = round(((total - viol) / total) * 100, 1) if total > 0 else 100.0
+        h_writer.writerow({
+            "audit_timestamp": run_ts,
+            "total_accounts": total,
+            "violations_found": viol,
+            "compliance_rate_pct": rate,
+        })
 
     with open(os.path.join(EXPORT_DIR, "ad_hr_reconciliation_matrix.csv"), "w", newline="", encoding="utf-8") as m_csv:
         if reconciliation_snapshot:
