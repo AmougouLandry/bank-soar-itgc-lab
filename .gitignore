@@ -5,3 +5,5 @@ __pycache__/
 powerbi-export/*.csv
 powerbi-export/*.json
 !powerbi-export/.gitkeep
+
+logs/*.log
