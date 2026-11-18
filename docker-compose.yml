@@ -80,15 +80,42 @@ services:
     container_name: bank_siem_detector
     depends_on:
       - mariadb-governance
+      - soar-engine
     environment:
       DB_HOST: mariadb-governance
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
-      SOAR_WEBHOOK_URL: ${SOAR_WEBHOOK_URL:-}
+      SOAR_WEBHOOK_URL: http://soar-engine:8000/api/v1/soar/ingest
     volumes:
       - ./logs:/app/logs
     networks:
       bank_secops_net:
         ipv4_address: 172.25.20.40
+    restart: unless-stopped
+
+  soar-engine:
+    build: ./soar
+    container_name: bank_soar_engine
+    depends_on:
+      - ad-dc
+      - mariadb-governance
+    environment:
+      AD_HOST: ad-dc
+      DOMAIN_REALM: ${DOMAIN_REALM}
+      AD_ADMIN_PASS: ${AD_ADMIN_PASS}
+      DB_HOST: mariadb-governance
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      VT_API_KEY: ${VT_API_KEY}
+      ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./soar:/app/soar-data
+      - ./powerbi-export:/app/export
+    networks:
+      bank_secops_net:
+        ipv4_address: 172.25.20.50
     restart: unless-stopped
